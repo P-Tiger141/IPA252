@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humidity & Temperature Logger</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>🌡️ Humidity & Temperature Logger</h1>
+
+  <!-- ⏰ Fancy Real-Time Clock and Date -->
+  <div class="clock-container">
+    <div id="clock">--:--:-- --</div>
+    <div id="date">--/--/----</div>
+  </div>
+
+  <!-- ✅ Device Status -->
+  <div class="status" id="deviceStatus">✅ Device Online</div>
+
+  <!-- 🌡️ Temperature -->
+  <div class="data-box">
+    <h2 id="temperature">-- °C</h2>
+    <p>Temperature</p>
+  </div>
+
+  <!-- 💧 Humidity -->
+  <div class="data-box">
+    <h2 id="humidity">-- %</h2>
+    <p>Humidity</p>
+  </div>
+
+  <!-- 🕒 Last Updated -->
+  <div class="updated-time">
+    ⏰ Last updated: <span id="lastUpdated">--/--/---- --:--:--</span>
+  </div>
+
+  <script>
+    async function fetchData() {
+      try {
+        const response = await fetch('/data.json');
+        const data = await response.json();
+
+        document.getElementById('temperature').innerText = `${data.temperature} °C`;
+        document.getElementById('humidity').innerText = `${data.humidity} %`;
+        document.getElementById('lastUpdated').innerText = new Date().toLocaleString();
+
+        const status = document.getElementById('deviceStatus');
+        status.innerText = '✅ Device Online';
+        status.classList.remove('offline');
+        status.classList.add('online');
+      } catch (error) {
+        const status = document.getElementById('deviceStatus');
+        status.innerText = '❌ Device Offline';
+        status.classList.remove('online');
+        status.classList.add('offline');
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+
+      const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
+      const dateString = now.toLocaleDateString();
+
+      document.getElementById('clock').innerText = timeString;
+      document.getElementById('date').innerText = dateString;
+    }
+
+    fetchData();
+    setInterval(fetchData, 5000); 
+    updateClock();
+    setInterval(updateClock, 1000); 
+  </script>
+
+</body>
+</html>
